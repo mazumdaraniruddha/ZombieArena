@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #include <SFML/Graphics.hpp>
 #include <sstream>
+#include <fstream>
 #include "Player.h"
 #include "ZombieArena.h"
 #include "Bullet.h"
@@ -10,8 +11,12 @@
 #include "Pickup.h"
 
 using namespace sf;
+using namespace std;
 
 int main() {
+	// Save game file
+	const string GAME_SAVED_FILE = "gamedata/scores.txt";
+
 	// Init TextureHolder
 	TextureHolder textureHolder;
 	// GAME STATES
@@ -115,12 +120,21 @@ int main() {
 	scoreText.setCharacterSize(55);
 	scoreText.setFillColor(Color::White);
 	scoreText.setPosition(20, 0);
+	// Load high score from saved file
+	ifstream inputFile(GAME_SAVED_FILE);
+	if (inputFile.is_open()) {
+		inputFile >> hiScore;
+		inputFile.close();
+	}
 	// Hi Score Text
 	Text hiScoreText;
 	hiScoreText.setFont(font);
 	hiScoreText.setCharacterSize(55);
 	hiScoreText.setFillColor(Color::White);
 	hiScoreText.setPosition(1400, 0);
+	stringstream s;
+	s << "Hi Score: " << hiScore;
+	hiScoreText.setString(s.str());
 	// Zombies Remaining Text
 	Text zombiesRemainingText;
 	zombiesRemainingText.setFont(font);
@@ -332,6 +346,10 @@ int main() {
 					if (player.getHealth() <= 0) {
 						// Death scenario
 						state = State::GAME_OVER;
+
+						ofstream outputFile(GAME_SAVED_FILE);
+						outputFile << hiScore;
+						outputFile.close();
 					}
 				}
 			} // End Player/Zombie Collision check
